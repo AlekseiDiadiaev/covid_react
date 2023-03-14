@@ -11,8 +11,12 @@ import {
     Title,
     Tooltip,
     Legend,
+    TimeScale
   } from 'chart.js';
-import {Container, Tab, Tabs, Form} from 'react-bootstrap';
+import 'chartjs-adapter-date-fns';
+import ruLocale from 'date-fns/locale/ru';
+
+import {Form} from 'react-bootstrap';
 
 
 
@@ -51,14 +55,23 @@ function CharBlock({getArrayByCountries, dateTo, dateFrom, getInitialData, getFi
             return <option key={i} value={item.country}>{item.country}</option>;
         })
     }
-   
-    const data = {
-        labels: dataPerDay ? dataPerDay.map(item => item.date) : [],
-        
+
+    ChartJS.register(
+        CategoryScale,
+        LinearScale,
+        PointElement,
+        LineElement,
+        Title,
+        Tooltip,
+        Legend,
+        TimeScale,     
+      );
+
+    const dataChar = {
         datasets: [
           {
             label: 'Заболевания',
-            data: dataPerDay ? dataPerDay.map(item => item.cases) : [],
+            data: dataPerDay ? dataPerDay.map(item => ({x: item.date, y: item.cases})): [],
             borderColor: '#ffc107',
             backgroundColor: '#ffc107',
             pointStyle: false,
@@ -66,24 +79,58 @@ function CharBlock({getArrayByCountries, dateTo, dateFrom, getInitialData, getFi
           },
           {
             label: 'Смерти',
-            data: dataPerDay ? dataPerDay.map(item => item.deaths) : [],
+            data: dataPerDay ? dataPerDay.map(item => ({x: item.date, y: item.deaths})) : [],
             borderColor: '#dc3545',
             backgroundColor: '#dc3545',
             pointStyle: false,
             tension: 0.1
           }
         ],
-      };
+    };
 
-      ChartJS.register(
-        CategoryScale,
-        LinearScale,
-        PointElement,
-        LineElement,
-        Title,
-        Tooltip,
-        Legend
-      );
+    const optionsChar = {
+            plugins: {
+                legend: {
+                    position: 'top',
+                    display: true,
+                    labels: {
+                        font: {
+                            size: 20
+                        }
+                    }
+                  },
+                title:{ 
+                    display: true,
+                    text: 'График заболеваемости и смертности',
+                    font: {
+                        size: 24
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    adapters: {
+                        date: {
+                          locale: ruLocale,
+                        },
+                      },
+                    type: 'time',
+                    time: {
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Количество случаев',
+                      },
+                    //   ticks: {
+                    //     callback: function (value) {
+                    //       return value + ' случаев'; 
+                    //     },
+                    // }
+                }
+            }
+      };
     return (
        <>
             <Form.Select aria-label="Default select example" value={filterId} onChange={(e) => setFilterId(e.target.value)}>
@@ -91,8 +138,8 @@ function CharBlock({getArrayByCountries, dateTo, dateFrom, getInitialData, getFi
                 {optionOfSelectOfCountries}
             </Form.Select>
             {<Line
-                data={data}
-                // options={options}          
+                data={dataChar}
+                options={optionsChar}          
             />}
        </>    
     );
