@@ -21,7 +21,7 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom}) {
     const [activeKeyFrom, setActiveKeyFrom] = useState('0')
     const [activeKeyTo, setActiveKeyTo] = useState('0')
     const [reset, onReset] = useState(false)
-
+    
     useEffect(() => {   // Change state for mobile screen
         const handleResize = () => {
             setIsVisibleFrom(window.innerWidth > 768);
@@ -47,11 +47,11 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom}) {
         onReset(reset => (!reset))
     }
     
-    const closeAccordion = () => {
+    const closeAccordion = (e, idPicker) => {
         setIsVisibleFrom(false);
         setIsVisibleTo(false);
         setActiveKeyFrom('0');
-        setActiveKeyTo('0');
+        setActiveKeyTo('0');  
     };
 
     return (

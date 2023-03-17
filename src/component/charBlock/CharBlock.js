@@ -19,7 +19,7 @@ import {Form, Col} from 'react-bootstrap';
 
 
 
-function CharBlock({getArrayByCountries, dateTo, dateFrom, getDataPerDay}) {
+function CharBlock({getDataByCountries, dateTo, dateFrom, getDataByDays}) {
     const [dataByCountries, setByCountries] = useState(null);
     const [dataPerDay, setDataPerDay] = useState(null);
     const [filterId, setFilterId] = useState('all');
@@ -38,7 +38,7 @@ function CharBlock({getArrayByCountries, dateTo, dateFrom, getDataPerDay}) {
 
 
     useEffect(() => {
-        getDataPerDay(filterId)
+        getDataByDays(filterId)
             .then(res => {
                 setDataPerDay(res)
 
@@ -46,13 +46,13 @@ function CharBlock({getArrayByCountries, dateTo, dateFrom, getDataPerDay}) {
     }, [filterId])
 
     useEffect(() => {
-        getDataPerDay()  
+        getDataByDays()  
         if(dateTo && dateFrom){
-            getArrayByCountries()
+            getDataByCountries()
                 .then(res => {
                     setByCountries(res)            
                 }) 
-            getDataPerDay(filterId)
+            getDataByDays(filterId)
                 .then(res => {
                     setDataPerDay(res)
          

@@ -8,16 +8,22 @@ import 'react-day-picker/dist/style.css';
 
 export default function DatePiсker({setDateTo, setDateFrom, idPicker, loading, error, reset, baseMinDate, baseMaxDate, closeAccordion}) {
     const [selected, setSelected] = useState();
-    const onSelectDate = (e) => {
-        if (window.innerWidth < 768){
-            closeAccordion();
-        } 
-        setSelected(e)
+    const [onSelected, setOnSelected] = useState();
+
+    useEffect(() => {
         if(idPicker === 'min') {
-            setDateFrom(Date.parse(e));
+            setDateFrom(Date.parse(onSelected));
         } else {
-            setDateTo(Date.parse(e));
+            setDateTo(Date.parse(onSelected));
         }
+    },[onSelected]);
+
+    const onSelectDate = (e) => {
+        setSelected(e)
+        setOnSelected(e)
+        if (window.innerWidth < 768){
+            closeAccordion(e, idPicker);
+        } 
     }
 
     useEffect(() => {

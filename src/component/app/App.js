@@ -5,18 +5,19 @@ import {Container,  Col} from 'react-bootstrap';
 import DatepickerBlock from '../datepickerblock/DatepickerBlock';
 import TabsCovid from '../tabsCovid/TabsCovid';
 import useCovidService  from '../../service/CovidService';
+import ErrorBoundary from '../errorBoundary/ErrorBoundary';
 
 function App() {
     const {setDateTo, 
             setDateFrom, 
-            getArrayByCountries, 
+            getDataByCountries, 
             dateTo, 
             dateFrom, 
-            sortData, 
-            search, 
-            filter, 
+            getSortedData, 
+            getDataAfterSearch, 
+            getFilteredData, 
             baseData, 
-            getDataPerDay,
+            getDataByDays,
             error} = useCovidService();
 
     return (
@@ -25,18 +26,22 @@ function App() {
             <Col className="bg-dark py-2">
                 <h1 className='text-light text-center display-1'>Covid statistics</h1>
             </Col>           
-            <Container>                
-                    <DatepickerBlock setDateTo={setDateTo} setDateFrom={setDateFrom} dateTo={dateTo} dateFrom={dateFrom} />               
-                    <TabsCovid  getArrayByCountries={getArrayByCountries} 
-                                dateTo={dateTo} 
-                                dateFrom={dateFrom}
-                                sortData={sortData}
-                                search={search}
-                                filter={filter}
-                                baseData={baseData}
-                                getDataPerDay={getDataPerDay}
-                                error={error}
-                                />    
+            <Container> 
+                    <ErrorBoundary>
+                        <DatepickerBlock setDateTo={setDateTo} setDateFrom={setDateFrom} dateTo={dateTo} dateFrom={dateFrom} /> 
+                    </ErrorBoundary>       
+                    <ErrorBoundary>
+                        <TabsCovid  getDataByCountries={getDataByCountries} 
+                            dateTo={dateTo} 
+                            dateFrom={dateFrom}
+                            getSortedData={getSortedData}
+                            getDataAfterSearch={getDataAfterSearch}
+                            getFilteredData={getFilteredData}
+                            baseData={baseData}
+                            getDataByDays={getDataByDays}
+                            error={error}
+                            />  
+                    </ErrorBoundary>                                  
             </Container>    
         </Container>
     );

@@ -3,7 +3,7 @@ import { Row, Col, Form, Table, Button, ButtonGroup, DropdownButton, Dropdown, S
 import './tableCovid.scss'
 import ErrorMassage from '../errorMessage/ErrorMessage'
 
-function TableCovid({getArrayByCountries, dateTo, dateFrom, sortData, search, filter, baseData, error}) {
+function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDataAfterSearch, getFilteredData, baseData, error}) {
     const [data, setData] = useState(null);
     const [tableError, setTableError] = useState(false);
     const [activeBtn, setActiveBtn] = useState('country+');
@@ -22,7 +22,7 @@ function TableCovid({getArrayByCountries, dateTo, dateFrom, sortData, search, fi
 
     useEffect(() => {
         if(dateTo && dateFrom){
-            getArrayByCountries()
+            getDataByCountries()
                 .then(res => {
                     setTableError(false)
                     setData(res)
@@ -39,7 +39,7 @@ function TableCovid({getArrayByCountries, dateTo, dateFrom, sortData, search, fi
 
     useEffect(() => {
         setSearchValue('');
-        const res = filter(filterId, filterFromValue ,filterToValue);
+        const res = getFilteredData(filterId, filterFromValue ,filterToValue);
         if(res) {
             setData(res);
             setStartRow(0);
@@ -50,7 +50,7 @@ function TableCovid({getArrayByCountries, dateTo, dateFrom, sortData, search, fi
     const onSearch = (str) => {
         setSearchValue(str);
         
-        const res = search(str)
+        const res = getDataAfterSearch(str)
         setStartRow(0);      
         setEndRow(res.length > numOfRow ? numOfRow : res.length);  
         setData(res)
@@ -69,9 +69,10 @@ function TableCovid({getArrayByCountries, dateTo, dateFrom, sortData, search, fi
             item.classList.add('active-cell')
         })
 
-        const res = sortData(e.target.id);
+        const res = getSortedData(e.target.id);
         setData(res);
         setActiveBtn(e.target.id);
+
     }
     
     const onReset = () => {
@@ -224,9 +225,11 @@ function TableCovid({getArrayByCountries, dateTo, dateFrom, sortData, search, fi
     const errorMessage = tableError ? <ErrorMassage>Ошибка при получении данных. Обновите страницу.</ErrorMassage>: null;
     const massage = data && data.length === 0 ? <Col className="fs-1 text-center py-5">Данных не найдено.</Col>: null;
     
-    const spinner = !data && !tableError ? <Spinner animation="border" role="status" className="m-2">
-                                                <span className="visually-hidden">Loading...</span>
-                                            </Spinner> : null;
+    const spinner = !data && !tableError ? <Col className='d-flex justify-content-center'>
+                                                <Spinner animation="border" role="status" className="m-2">
+                                                    <span className="visually-hidden">Loading...</span>
+                                                </Spinner>
+                                            </Col> : null;
 
     const viewTable = data && !massage ? table: null;
 
@@ -255,7 +258,7 @@ function TableCovid({getArrayByCountries, dateTo, dateFrom, sortData, search, fi
             <Form.Label className="fs-3">Поиск по стране</Form.Label>
             <Form.Control 
                 disabled={!data}
-                type="search" 
+                type="getDataAfterSearch" 
                 placeholder="Вевдите название страны на английском" 
                 className="mb-3"
                 value={searchValue}
@@ -294,7 +297,7 @@ function TableCovid({getArrayByCountries, dateTo, dateFrom, sortData, search, fi
                     <Button onClick={onReset} disabled={!data} variant="danger" className="float-end">Сбросить фильтры</Button>
                 </Col>
             </Row>
-            <Row className="overflow-auto position-relative  d-flex justify-content-center">
+            <Row className="overflow-auto position-relative">
                 {errorMessage}
                 {massage}
                 {spinner}

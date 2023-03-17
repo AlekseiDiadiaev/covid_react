@@ -2,30 +2,33 @@ import {Container, Tab, Tabs} from 'react-bootstrap';
 import './tabsCovid.scss'
 import TableCovid from '../tableCovid/TableCovid';
 import CharBlock from '../charBlock/CharBlock';
+import ErrorBoundary from '../errorBoundary/ErrorBoundary';
 
-function TabsCovid({getArrayByCountries, dateTo, dateFrom, sortData, search, filter, baseData, getDataPerDay, error}) {
+function TabsCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDataAfterSearch, getFilteredData, baseData, getDataByDays, error}) {
     return (
        <>
             <Tabs defaultActiveKey="table" id="tabs" className="rounded fs-3" fill>
                 <Tab eventKey="table" title="Таблица" >
                     <Container  className='bg-light p-4 border border-top-0 mb-2'>
-                        <TableCovid getArrayByCountries={getArrayByCountries} 
-                                    dateTo={dateTo} 
-                                    dateFrom={dateFrom} 
-                                    sortData={sortData}
-                                    search={search}
-                                    filter={filter}
-                                    baseData={baseData}
-                                    error={error}
-                                    />
+                        <ErrorBoundary>
+                            <TableCovid getDataByCountries={getDataByCountries} 
+                                dateTo={dateTo} 
+                                dateFrom={dateFrom} 
+                                getSortedData={getSortedData}
+                                getDataAfterSearch={getDataAfterSearch}
+                                getFilteredData={getFilteredData}
+                                baseData={baseData}
+                                error={error}
+                                />
+                        </ErrorBoundary>          
                     </Container>
                 </Tab>
                 <Tab eventKey="char" title="График" >
                     <Container className='bg-light p-4 border border-top-0  mb-2'>
-                        <CharBlock  getArrayByCountries={getArrayByCountries} 
+                        <CharBlock  getDataByCountries={getDataByCountries} 
                                     dateTo={dateTo} 
                                     dateFrom={dateFrom}
-                                    getDataPerDay={getDataPerDay} />
+                                    getDataByDays={getDataByDays} />
                     </Container>
                 </Tab>
             </Tabs> 

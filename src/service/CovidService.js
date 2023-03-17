@@ -21,17 +21,23 @@ const useCovidService = () => {
     const {loading, request, error, clearError} = useHttp();
     const [dateTo, setDateTo] = useState();
     const [dateFrom, setDateFrom] = useState();
-    const [baseData, setBaseData] = useState()
+    const [baseData, setBaseData] = useState(false)
     const [data, setData] = useState()
+    const [baseInitialData, setBaseInitialData] = useState(false)
     const _api = 'https://opendata.ecdc.europa.eu/covid19/casedistribution/json/';
    
-
     const getInitialData = async () => {
         return  await request(_api);   
     }
 
     const  getMinMaxDate = async() => {
-        const initialData = await getInitialData(); 
+        let initialData;
+        if(!baseInitialData){
+            initialData = await getInitialData();  
+            setBaseInitialData(initialData);
+        } else {
+            initialData = JSON.parse(JSON.stringify(baseInitialData))
+        } 
         
         const DateSortByDate = initialData.records.sort((x, y) => {
             let first = Date.parse(`${x.year}-${x.month}-${x.day}`);
@@ -53,37 +59,48 @@ const useCovidService = () => {
 
   
     const getFilteredDataPerDate = async (dateFrom = dateFrom, dateTo = dateTo) => {
-        const initialData = await getInitialData();  
-
+        let initialData;
+        if(!baseInitialData){
+            initialData = await getInitialData();  
+            setBaseInitialData(initialData);
+        } else {
+            initialData = JSON.parse(JSON.stringify(baseInitialData))           
+        }
+        
         const res = initialData.records.filter(item => {
             const time = Date.parse(`${item.year}-${item.month}-${item.day}`);
             return (time >= (dateFrom) && time <= (dateTo +  86401000));
-        }); 
-        
+        });        
         return res;    
     }
     
-    const getArrayByCountries = async () => {
+    const getDataByCountries = async () => {  
         
-        const initialData = await getInitialData();
+        let initialData;
+        if(!baseInitialData){
+            initialData = await getInitialData();  
+            setBaseInitialData(initialData);
+        } else {
+            initialData = JSON.parse(JSON.stringify(baseInitialData))
+        }
+
         function formatNumber(number, decimalPlaces) {
             const roundedNumber = Math.round(number * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces);
             if (Number.isInteger(roundedNumber)) {
-              return roundedNumber.toString();
+              return roundedNumber;
             } else {
-              return roundedNumber.toFixed(decimalPlaces);
+              return +roundedNumber.toFixed(decimalPlaces);
             }
         }
-
+     
         const filteredDataPerDate = await getFilteredDataPerDate(dateFrom, dateTo)
         
         const arrAllCounrties = initialData.records.map((item , i) => {
             return item.countriesAndTerritories
         })
-        const arrUniqueCountries = Array.from(new Set(arrAllCounrties))
-
+        const arrUniqueCountries = Array.from(new Set(arrAllCounrties))      
         
-        const DataByCountries = arrUniqueCountries.map(item =>{ 
+        const dataByCountries = arrUniqueCountries.map(item =>{ 
                 return {country: item,
                         popData2019: 0,
                         cases: 0,
@@ -98,25 +115,29 @@ const useCovidService = () => {
                         maxDeathsPerDay: 0
                         }
             })
-        
+             
         initialData.records.forEach((item, i)=> {
-            const indexFindedElem = DataByCountries.findIndex(elem => elem.country === item.countriesAndTerritories)
+            const indexFindedElem = dataByCountries.findIndex(elem => elem.country === item.countriesAndTerritories)
                 if(!(indexFindedElem  === -1)) {
-                    DataByCountries[indexFindedElem].allCases += item.cases;
-                    DataByCountries[indexFindedElem].allDeaths += item.deaths;
-                    DataByCountries[indexFindedElem].popData2019 = item.popData2019;        
+                    dataByCountries[indexFindedElem].allCases += item.cases;
+                    dataByCountries[indexFindedElem].allDeaths += item.deaths;
+                    dataByCountries[indexFindedElem].popData2019 = item.popData2019;        
                 }   
         })  
+
         
+
         filteredDataPerDate.forEach(item => {
-            const indexFindedElem = DataByCountries.findIndex(elem => elem.country === item.countriesAndTerritories)
+            const indexFindedElem = dataByCountries.findIndex(elem => elem.country === item.countriesAndTerritories)
+            
             if(!(indexFindedElem  === -1)) {
-                DataByCountries[indexFindedElem].cases += item.cases;
-                DataByCountries[indexFindedElem].deaths += item.deaths;                       
+                dataByCountries[indexFindedElem].cases += item.cases;
+                dataByCountries[indexFindedElem].deaths += item.deaths;                       
             } 
         })
- 
-        DataByCountries.forEach(item => {
+        
+        dataByCountries.forEach(item => {
+
             let casesRes;
             let deathesRes;
 
@@ -142,20 +163,27 @@ const useCovidService = () => {
             function getMaxNumPerDay(arg) {
                 const arrDaysCurrentCountry =  filteredDataPerDate.filter(elem => elem.countriesAndTerritories === item.country);
                 const arrCasesPerDays = arrDaysCurrentCountry.map(elem => elem[arg]);
-                return isFinite(Math.max(...arrCasesPerDays)) ? Math.max(...arrCasesPerDays) : 0;
+                const maxNum = Math.max(...arrCasesPerDays)
+                // const arrDaysCurrentCountry =  filteredDataPerDate.filter(elem => elem.countriesAndTerritories === item.country);
+                // const arrCasesPerDays = arrDaysCurrentCountry.sort((b, a) => a[arg] - b[arg])
+                // const maxNum = arrCasesPerDays[0][arg];
+                return isFinite(maxNum) ? maxNum : 0;
             }
 
             item.maxCasesPerDay = getMaxNumPerDay('cases');
             item.maxDeathsPerDay =  getMaxNumPerDay('deaths');
         })
-        setBaseData(DataByCountries);
-        setData(DataByCountries);
-        return DataByCountries;
+        
+
+        setBaseData(dataByCountries);
+        setData(dataByCountries);
+         
+        return dataByCountries;
     }
     
-    const sortData = (id) => {
+    const getSortedData = (id) => {
         const tempData = JSON.parse(JSON.stringify(data));
-        
+
         function sortByCountry(isAscending) {
             if (isAscending) {
                 return tempData.sort((a, b) => {
@@ -182,9 +210,6 @@ const useCovidService = () => {
             }
         }
 
-        
-         
-
         if(id === 'country-'){
             return sortByCountry(false)
         } if(id === 'country+') {
@@ -202,16 +227,17 @@ const useCovidService = () => {
         }
     }
 
-    const search = (str) => {
+    const getDataAfterSearch = (str) => {
         const res = baseData.filter(item => {
-                return item.country.toLowerCase().includes(str.toLowerCase());
-            });
-        
+            return item.country.toLowerCase().includes(str.toLowerCase());
+        });
+        console.dfhjfj()
         setData(res);
         return res;
+        
     }
 
-    const filter = (id, from, to) => {
+    const getFilteredData = (id, from, to) => {
         if(from === '' || to === '') {
             setData(baseData);
             return baseData;           
@@ -224,7 +250,7 @@ const useCovidService = () => {
         }
     }
 
-    const getDataPerDay = async (country) => {
+    const getDataByDays = async (country) => {
         
         if(!dateFrom || !dateTo || !country){
             return false;
@@ -264,16 +290,16 @@ const useCovidService = () => {
     return {loading, 
             error, 
             clearError, 
-            getArrayByCountries, 
-            getDataPerDay,
+            getDataByCountries, 
+            getDataByDays, 
+            getSortedData, 
+            getDataAfterSearch,
+            getFilteredData, 
+            getMinMaxDate,
             setDateTo, 
             setDateFrom, 
-            getMinMaxDate, 
             dateTo, 
-            dateFrom, 
-            sortData, 
-            search,
-            filter,
+            dateFrom,
             baseData};
 }
 
