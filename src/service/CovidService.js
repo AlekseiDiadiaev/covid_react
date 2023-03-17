@@ -231,7 +231,7 @@ const useCovidService = () => {
         const res = baseData.filter(item => {
             return item.country.toLowerCase().includes(str.toLowerCase());
         });
-        console.dfhjfj()
+        
         setData(res);
         return res;
         
@@ -300,7 +300,8 @@ const useCovidService = () => {
             setDateFrom, 
             dateTo, 
             dateFrom,
-            baseData};
+            baseData
+            };
 }
 
 

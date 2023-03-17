@@ -15,13 +15,13 @@ import {
   } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 import ruLocale from 'date-fns/locale/ru';
-import {Form, Col} from 'react-bootstrap';
+import {Form, Col, Spinner} from 'react-bootstrap';
 
 
 
 function CharBlock({getDataByCountries, dateTo, dateFrom, getDataByDays}) {
     const [dataByCountries, setByCountries] = useState(null);
-    const [dataPerDay, setDataPerDay] = useState(null);
+    const [dataByDays, setDataPerDay] = useState(null);
     const [filterId, setFilterId] = useState('all');
     const [isSmallScrean, setIsSmallScrean ] = useState(false)
 
@@ -82,7 +82,7 @@ function CharBlock({getDataByCountries, dateTo, dateFrom, getDataByDays}) {
         datasets: [
           {
             label: 'Заболевания',
-            data: dataPerDay ? dataPerDay.map(item => ({x: item.date, y: item.cases})): [],
+            data: dataByDays ? dataByDays.map(item => ({x: item.date, y: item.cases})): [],
             borderColor: '#ffc107',
             backgroundColor: '#ffc107',
             pointStyle: false,
@@ -90,7 +90,7 @@ function CharBlock({getDataByCountries, dateTo, dateFrom, getDataByDays}) {
           },
           {
             label: 'Смерти',
-            data: dataPerDay ? dataPerDay.map(item => ({x: item.date, y: item.deaths})) : [],
+            data: dataByDays ? dataByDays.map(item => ({x: item.date, y: item.deaths})) : [],
             borderColor: '#dc3545',
             backgroundColor: '#dc3545',
             pointStyle: false,
@@ -186,16 +186,21 @@ function CharBlock({getDataByCountries, dateTo, dateFrom, getDataByDays}) {
         }
     };
 
-    const smallChar = isSmallScrean ? <Line
+    const smallChar = isSmallScrean && dataByDays? <Line
                 width={800}
                 height={400}
                 data={dataChar}
                 options={optionsSmallChar}          
             />: null;
-    const bigChar = !smallChar ? <Line
+    const bigChar = !smallChar && dataByDays ? <Line
                 data={dataChar}
                 options={optoinsBigChar}          
-            />: null;      
+            />: null;    
+    const spinner = !bigChar && !smallChar ? <Col className='d-flex justify-content-center'>
+                                                <Spinner animation="border" role="status" className="m-2">
+                                                    <span className="visually-hidden">Loading...</span>
+                                                </Spinner>
+                                            </Col> : null;
     return (
        <>
             <Form.Select aria-label="Default select example" value={filterId} onChange={(e) => setFilterId(e.target.value)}>
@@ -205,6 +210,7 @@ function CharBlock({getDataByCountries, dateTo, dateFrom, getDataByDays}) {
             <Col className="overflow-auto">
                 {smallChar}
                 {bigChar}
+                {spinner}
             </Col>
        </>    
     );

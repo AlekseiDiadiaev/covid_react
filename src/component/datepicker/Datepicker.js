@@ -6,19 +6,20 @@ import { ru } from 'date-fns/locale';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 
-export default function DatePiсker({setDateTo, setDateFrom, idPicker, loading, error, reset, baseMinDate, baseMaxDate, closeAccordion}) {
+export default function DatePiсker({setDateTo, setDateFrom, idPicker, loading, error, reset, baseMinDate, baseMaxDate, closeAccordion, setLoadingInApp}) {
     const [selected, setSelected] = useState();
     const [onSelected, setOnSelected] = useState();
 
-    useEffect(() => {
-        if(idPicker === 'min') {
-            setDateFrom(Date.parse(onSelected));
-        } else {
-            setDateTo(Date.parse(onSelected));
-        }
+    useEffect(() => { 
+            if(idPicker === 'min') {
+                setDateFrom(Date.parse(onSelected));
+            } else {
+                setDateTo(Date.parse(onSelected));
+            }  
     },[onSelected]);
 
     const onSelectDate = (e) => {
+        setLoadingInApp(true)
         setSelected(e)
         setOnSelected(e)
         if (window.innerWidth < 768){
@@ -61,7 +62,7 @@ export default function DatePiсker({setDateTo, setDateFrom, idPicker, loading, 
                                     fromDate={baseMinDate}
                                     toDate={baseMaxDate}                              
                                     locale={ ru }
-                                    captionLayout="dropdown" 
+                                    // captionLayout="dropdown" 
                                     mode="single"
                                     selected={new Date(selected)}
                                     onSelect={(e) =>   e ? onSelectDate(e): null}

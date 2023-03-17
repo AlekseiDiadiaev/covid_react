@@ -11,9 +11,8 @@ import { ru } from 'date-fns/locale';
 import  useCovidService  from '../../service/CovidService';
 
 
-function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom}) {
+function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom, setLoadingInApp}) {
     const {getMinMaxDate, loading, error} = useCovidService();
-
     const [baseMinDate, setBaseMinDate] = useState(null);
     const [baseMaxDate, setBaseMaxDate] = useState(null); 
     const [isVisibleFrom, setIsVisibleFrom] = useState(window.innerWidth > 768 ? true: false);
@@ -21,7 +20,7 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom}) {
     const [activeKeyFrom, setActiveKeyFrom] = useState('0')
     const [activeKeyTo, setActiveKeyTo] = useState('0')
     const [reset, onReset] = useState(false)
-    
+
     useEffect(() => {   // Change state for mobile screen
         const handleResize = () => {
             setIsVisibleFrom(window.innerWidth > 768);
@@ -44,10 +43,11 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom}) {
     }, [reset])
 
     const onBaseDate = () => {
+        setLoadingInApp(true)
         onReset(reset => (!reset))
     }
     
-    const closeAccordion = (e, idPicker) => {
+    const closeAccordion = () => {
         setIsVisibleFrom(false);
         setIsVisibleTo(false);
         setActiveKeyFrom('0');
@@ -83,6 +83,7 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom}) {
                     <Collapse in={isVisibleFrom}>
                         <div className="mx-auto bg-light rounded" style={{'height': '370px'}} >
                             <Datepicker
+                                setLoadingInApp={setLoadingInApp}
                                 closeAccordion={closeAccordion}
                                 reset={reset}
                                 baseMinDate={baseMinDate}
@@ -118,6 +119,7 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom}) {
                     <Collapse in={isVisibleTo}>
                     <div className="mx-auto bg-light rounded" style={{'height': '370px'}} >
                         <Datepicker 
+                            setLoadingInApp={setLoadingInApp}
                             closeAccordion={closeAccordion}
                             reset={reset}
                             baseMaxDate={baseMaxDate}

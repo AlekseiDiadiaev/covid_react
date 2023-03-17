@@ -3,7 +3,8 @@ import { Row, Col, Form, Table, Button, ButtonGroup, DropdownButton, Dropdown, S
 import './tableCovid.scss'
 import ErrorMassage from '../errorMessage/ErrorMessage'
 
-function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDataAfterSearch, getFilteredData, baseData, error}) {
+function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDataAfterSearch, getFilteredData, baseData, error, setLoadingInApp}) {
+    
     const [data, setData] = useState(null);
     const [tableError, setTableError] = useState(false);
     const [activeBtn, setActiveBtn] = useState('country+');
@@ -15,27 +16,33 @@ function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDat
     const [filterToValue, setFilterToValue] = useState('');
     const [filterId, setFilterId] = useState('cases');
     const [searchValue, setSearchValue] = useState('');
+    const [togglerGetData, setTogglerGetData] = useState(false);
 
     useEffect(() => {
         setTableError(error);
     }, [error])
 
     useEffect(() => {
+        setTogglerGetData(!togglerGetData);     
+    },[dateTo, dateFrom])
+
+    useEffect(() => {
         if(dateTo && dateFrom){
             getDataByCountries()
                 .then(res => {
+                    setLoadingInApp(false); 
                     setTableError(false)
                     setData(res)
                     setNumOfRow((numOfRow) => {
                         return res.length > numOfRow ? numOfRow : res.length; 
-                    })                
+                    })                                 
                 }).catch(err => {
+                    setLoadingInApp(false);
                     setTableError(true)
-                    console.log(err);
+                    console.log(err);      
                 })
-        }
-       
-    },[dateTo, dateFrom])
+        }  
+    },[togglerGetData])
 
     useEffect(() => {
         setSearchValue('');
@@ -87,6 +94,7 @@ function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDat
     }       
 
     const onNumOfRow = (id) => {
+        setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 500)
         setDropdownTitle(id)
         if (id === 'all') {
             setNumOfRow(data.length)
@@ -252,7 +260,8 @@ function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDat
         if(i === 0) return false; 
         return  <option key={i} value={item.id}>{item.text}</option>;      
     })
-
+    
+   
     return (
         <>
             <Form.Label className="fs-3">Поиск по стране</Form.Label>
@@ -275,7 +284,7 @@ function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDat
                     <Form.Label className="fs-3 d-inline d-inline-block" style={{'width': '36px'}}>от</Form.Label>
                     <Form.Control 
                         type="number" 
-                        placeholder="Вевдите значение от" 
+                        placeholder="Введите значение от" 
                         className="m-0 ms-1 d-inline w-75 align-top" 
                         disabled={!data}
                         value={filterFromValue}
@@ -286,7 +295,7 @@ function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDat
                     <Form.Label className="fs-3 d-inline d-inline-block" style={{'width': '40px'}}>до</Form.Label>
                     <Form.Control 
                         type="number" 
-                        placeholder="Вевдите значение до" 
+                        placeholder="Введите значение до" 
                         className="m-0 d-inline w-75 align-top" 
                         disabled={!data}
                         value={filterToValue}
