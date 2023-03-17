@@ -1,0 +1,9 @@
+.date-button {
+    display: block;
+    @media (min-width: 768px) { 
+        display: none;
+    }
+}
+.accordion-button {
+    background-color: white !important;
+}

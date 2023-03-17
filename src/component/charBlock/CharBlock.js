@@ -15,15 +15,27 @@ import {
   } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 import ruLocale from 'date-fns/locale/ru';
-
-import {Form} from 'react-bootstrap';
-
+import {Form, Col} from 'react-bootstrap';
 
 
-function CharBlock({getArrayByCountries, dateTo, dateFrom, getInitialData, getFilteredDataPerDate, getDataPerDay}) {
+
+function CharBlock({getArrayByCountries, dateTo, dateFrom, getDataPerDay}) {
     const [dataByCountries, setByCountries] = useState(null);
     const [dataPerDay, setDataPerDay] = useState(null);
     const [filterId, setFilterId] = useState('all');
+    const [isSmallScrean, setIsSmallScrean ] = useState(false)
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsSmallScrean(window.innerWidth < 992);
+        };
+        handleResize();
+
+        window.addEventListener('resize', handleResize);  
+        return () => window.removeEventListener('resize', handleResize);
+        
+    }, []);
+
 
     useEffect(() => {
         getDataPerDay(filterId)
@@ -45,8 +57,7 @@ function CharBlock({getArrayByCountries, dateTo, dateFrom, getInitialData, getFi
                     setDataPerDay(res)
          
                 })      
-        }
-       
+        }   
     },[dateTo, dateFrom])
    
     let optionOfSelectOfCountries;
@@ -87,60 +98,114 @@ function CharBlock({getArrayByCountries, dateTo, dateFrom, getInitialData, getFi
           }
         ],
     };
-
-    const optionsChar = {
-            plugins: {
-                legend: {
-                    position: 'top',
-                    display: true,
-                    labels: {
-                        font: {
-                            size: 20
-                        }
-                    }
-                  },
-                title:{ 
-                    display: true,
-                    text: 'График заболеваемости и смертности',
+    const optoinsBigChar = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+                display: true,
+                labels: {
                     font: {
-                        size: 24
+                        size: 20
                     }
                 }
-            },
-            scales: {
-                x: {
-                    adapters: {
-                        date: {
-                          locale: ruLocale,
-                        },
-                      },
-                    type: 'time',
-                    time: {
-                    },
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Количество случаев',
-                      },
-                    //   ticks: {
-                    //     callback: function (value) {
-                    //       return value + ' случаев'; 
-                    //     },
-                    // }
+              },
+            title:{ 
+                display: true,
+                text: 'График заболеваемости и смертности',
+                font: {
+                    size: 24
                 }
             }
-      };
+        },
+        scales: {
+            x: {
+                adapters: {
+                    date: {
+                      locale: ruLocale,
+                    },
+                  },
+                type: 'time',
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'Количество случаев',
+                  },
+            }
+        }
+    }
+
+    const optionsSmallChar = {
+        responsive: false,
+        plugins: {
+            legend: {
+                position: 'left',
+                align: 'start',
+                position: 'top',
+                display: true,
+                labels: {
+                    font: {
+                        size: 14
+                    }
+                }
+              },
+            title:{ 
+                align: 'start',
+                display: true,
+                text: 'График заболеваемости и смертности',
+                font: {
+                    size: 16
+                }
+            },
+            zoom: {
+                zoom: {
+                  enabled: true,
+                  mode: 'x',
+                },
+                pan: {
+                  enabled: true,
+                  mode: 'x',
+                },
+            },
+        },
+        scales: {
+            x: {
+                adapters: {
+                    date: {
+                      locale: ruLocale,
+                    },
+                  },
+                type: 'time',
+            },
+            y: {
+                title: {
+                    display: true,
+                  },
+            }
+        }
+    };
+
+    const smallChar = isSmallScrean ? <Line
+                width={800}
+                height={400}
+                data={dataChar}
+                options={optionsSmallChar}          
+            />: null;
+    const bigChar = !smallChar ? <Line
+                data={dataChar}
+                options={optoinsBigChar}          
+            />: null;      
     return (
        <>
             <Form.Select aria-label="Default select example" value={filterId} onChange={(e) => setFilterId(e.target.value)}>
                 <option value='all'>Все страны</option>;
                 {optionOfSelectOfCountries}
             </Form.Select>
-            {<Line
-                data={dataChar}
-                options={optionsChar}          
-            />}
+            <Col className="overflow-auto">
+                {smallChar}
+                {bigChar}
+            </Col>
        </>    
     );
 }

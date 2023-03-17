@@ -64,8 +64,8 @@ const useCovidService = () => {
     }
     
     const getArrayByCountries = async () => {
-        const initialData = await getInitialData();
         
+        const initialData = await getInitialData();
         function formatNumber(number, decimalPlaces) {
             const roundedNumber = Math.round(number * Math.pow(10, decimalPlaces)) / Math.pow(10, decimalPlaces);
             if (Number.isInteger(roundedNumber)) {
@@ -142,7 +142,7 @@ const useCovidService = () => {
             function getMaxNumPerDay(arg) {
                 const arrDaysCurrentCountry =  filteredDataPerDate.filter(elem => elem.countriesAndTerritories === item.country);
                 const arrCasesPerDays = arrDaysCurrentCountry.map(elem => elem[arg]);
-                return Math.max(...arrCasesPerDays)
+                return isFinite(Math.max(...arrCasesPerDays)) ? Math.max(...arrCasesPerDays) : 0;
             }
 
             item.maxCasesPerDay = getMaxNumPerDay('cases');
@@ -154,7 +154,7 @@ const useCovidService = () => {
     }
     
     const sortData = (id) => {
-        const tempData = [...data]
+        const tempData = JSON.parse(JSON.stringify(data));
         
         function sortByCountry(isAscending) {
             if (isAscending) {
@@ -203,13 +203,12 @@ const useCovidService = () => {
     }
 
     const search = (str) => {
-        const res = () =>{
-            return baseData.filter(item => {
+        const res = baseData.filter(item => {
                 return item.country.toLowerCase().includes(str.toLowerCase());
-            })
-        }
-        setData(res());
-        return res();
+            });
+        
+        setData(res);
+        return res;
     }
 
     const filter = (id, from, to) => {
@@ -265,9 +264,7 @@ const useCovidService = () => {
     return {loading, 
             error, 
             clearError, 
-            getInitialData, 
             getArrayByCountries, 
-            getFilteredDataPerDate,
             getDataPerDay,
             setDateTo, 
             setDateFrom, 
