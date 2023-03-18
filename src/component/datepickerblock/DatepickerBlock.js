@@ -19,7 +19,7 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom, setLoadingIn
     const [isVisibleTo, setIsVisibleTo] = useState(window.innerWidth > 768 ? true: false);
     const [activeKeyFrom, setActiveKeyFrom] = useState('0')
     const [activeKeyTo, setActiveKeyTo] = useState('0')
-    const [reset, onReset] = useState(false)
+    const [reset, setReset] = useState(false)
 
     useEffect(() => {   // Change state for mobile screen
         const handleResize = () => {
@@ -40,11 +40,11 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom, setLoadingIn
                 setDateTo(res.maxDate)
                 setDateFrom(res.minDate)    
             })
-    }, [reset])
+    }, [])
 
     const onBaseDate = () => {
         setLoadingInApp(true)
-        onReset(reset => (!reset))
+        setReset(reset => (!reset))
     }
     
     const closeAccordion = () => {
@@ -53,6 +53,8 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom, setLoadingIn
         setActiveKeyFrom('0');
         setActiveKeyTo('0');  
     };
+    // console.log(baseMinDate, dateFrom, baseMaxDate, dateTo )
+    const isDisabledResetButton = baseMinDate === dateFrom && baseMaxDate === dateTo ? true : false;
 
     return (
         <Row>   
@@ -83,6 +85,7 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom, setLoadingIn
                     <Collapse in={isVisibleFrom}>
                         <div className="mx-auto bg-light rounded" style={{'height': '370px'}} >
                             <Datepicker
+                                limitChangedDate={dateTo}
                                 setLoadingInApp={setLoadingInApp}
                                 closeAccordion={closeAccordion}
                                 reset={reset}
@@ -119,6 +122,7 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom, setLoadingIn
                     <Collapse in={isVisibleTo}>
                     <div className="mx-auto bg-light rounded" style={{'height': '370px'}} >
                         <Datepicker 
+                            limitChangedDate={dateFrom}
                             setLoadingInApp={setLoadingInApp}
                             closeAccordion={closeAccordion}
                             reset={reset}
@@ -138,7 +142,7 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom, setLoadingIn
                 </Col> 
 
                 <Col xl='8' className='d-flex justify-content-center p-3'>
-                    <Button onClick={onBaseDate} id="start">Отобразить все данные</Button>
+                    <Button onClick={onBaseDate} id="start" disabled={isDisabledResetButton}>Отобразить все данные</Button>
                 </Col>           
          </Row>          
     );

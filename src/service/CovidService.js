@@ -15,7 +15,7 @@
           "Cumulative_number_for_14_days_of_COVID-19_cases_per_100000" : "9.01377925"
        }, */
 import useHttp from '../hooks/http.hook';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const useCovidService = () => {
     const {loading, request, error, clearError} = useHttp();
@@ -25,7 +25,7 @@ const useCovidService = () => {
     const [data, setData] = useState()
     const [baseInitialData, setBaseInitialData] = useState(false)
     const _api = 'https://opendata.ecdc.europa.eu/covid19/casedistribution/json/';
-   
+    
     const getInitialData = async () => {
         return  await request(_api);   
     }
@@ -58,7 +58,8 @@ const useCovidService = () => {
     }
 
   
-    const getFilteredDataPerDate = async (dateFrom = dateFrom, dateTo = dateTo) => {
+    const getFilteredDataPerDate = async () => {
+
         let initialData;
         if(!baseInitialData){
             initialData = await getInitialData();  
@@ -70,7 +71,8 @@ const useCovidService = () => {
         const res = initialData.records.filter(item => {
             const time = Date.parse(`${item.year}-${item.month}-${item.day}`);
             return (time >= (dateFrom) && time <= (dateTo +  86401000));
-        });        
+        });   
+           
         return res;    
     }
     
@@ -157,8 +159,10 @@ const useCovidService = () => {
             item.deathsPer1000 = deathesRes;
             
             const days = (dateTo - dateFrom) /1000 /60 /60 /24 + 1;
-            item.averageCasesPerDay = Math.round(item.cases / days);
-            item.averageDeathsPerDay = Math.round(item.deaths / days);
+            const averageCasesPerDay = Math.round(item.cases / days);
+            item.averageCasesPerDay = isFinite(averageCasesPerDay) ? averageCasesPerDay : 0;
+            const averageDeathsPerDay = Math.round(item.deaths / days)
+            item.averageDeathsPerDay = isFinite(averageDeathsPerDay) ? averageDeathsPerDay : 0;
             
             function getMaxNumPerDay(arg) {
                 const arrDaysCurrentCountry =  filteredDataPerDate.filter(elem => elem.countriesAndTerritories === item.country);

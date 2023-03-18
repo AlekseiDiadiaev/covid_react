@@ -4,7 +4,6 @@ import './tableCovid.scss'
 import ErrorMassage from '../errorMessage/ErrorMessage'
 
 function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDataAfterSearch, getFilteredData, baseData, error, setLoadingInApp}) {
-    
     const [data, setData] = useState(null);
     const [tableError, setTableError] = useState(false);
     const [activeBtn, setActiveBtn] = useState('country+');
@@ -17,6 +16,14 @@ function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDat
     const [filterId, setFilterId] = useState('cases');
     const [searchValue, setSearchValue] = useState('');
     const [togglerGetData, setTogglerGetData] = useState(false);
+    const [isScrollOnBtn, setIsScrollOnBtn] = useState(false);
+
+    useEffect(() => {
+        if(isScrollOnBtn) {
+            isScrollOnBtn.scrollIntoView()
+            setIsScrollOnBtn(false)
+        }
+    }, [isScrollOnBtn])
 
     useEffect(() => {
         setTableError(error);
@@ -117,24 +124,26 @@ function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDat
         } 
         return num;
     }
-
-    const onNavTable = (direction) => {
-        if (direction === 'start') {
+    
+   
+    const onNavTable = (target) => {
+        setIsScrollOnBtn(target)
+        if (target.id === 'start') {
             setStartRow(checkIndexTable(0));
             setEndRow(data.length > numOfRow ? numOfRow : data.length)
 
-        } if (direction === 'end' && endRow < data.length) {
+        } if (target.id === 'end' && endRow < data.length) {
             let x = data.length - data.length % numOfRow;
             setStartRow(checkIndexTable(x === data.length ?  data.length - numOfRow: x));
             setEndRow(checkIndexTable(data.length))
 
-        } if (direction === 'next' && endRow < data.length) {
+        } if (target.id === 'next' && endRow < data.length) {
             setStartRow((startRow) => {
                 setEndRow(checkIndexTable((startRow + numOfRow) + numOfRow))
                 return checkIndexTable(startRow + numOfRow);
             });
            
-        } if (direction === 'prev' && startRow > 0) {
+        } if (target.id === 'prev' && startRow > 0) {
             setStartRow((startRow) => {
                 setEndRow(checkIndexTable((startRow - numOfRow) + numOfRow))
                 return checkIndexTable(startRow - numOfRow)});             
@@ -249,10 +258,10 @@ function TableCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDat
                                             <Dropdown.Item eventKey="100" >100</Dropdown.Item>
                                             <Dropdown.Item eventKey="all" >all</Dropdown.Item>
                                         </DropdownButton>
-                                        <Button onClick={(e) => onNavTable(e.target.id)} id="start">start</Button>                
-                                        <Button onClick={(e) => onNavTable(e.target.id)} id="prev">&larr;</Button>
-                                        <Button onClick={(e) => onNavTable(e.target.id)} id="next">&rarr;</Button>
-                                        <Button onClick={(e) => onNavTable(e.target.id)} id="end">end</Button>
+                                        <Button onClick={(e) => onNavTable(e.target)} id="start">start</Button>                
+                                        <Button onClick={(e) => onNavTable(e.target)} id="prev">&larr;</Button>
+                                        <Button onClick={(e) => onNavTable(e.target)} id="next">&rarr;</Button>
+                                        <Button onClick={(e) => onNavTable(e.target)} id="end">end</Button>
                                     </ButtonGroup>
                                 </Col> : null; 
 

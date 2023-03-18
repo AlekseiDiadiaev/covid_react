@@ -6,6 +6,7 @@ import DatepickerBlock from '../datepickerblock/DatepickerBlock';
 import TabsCovid from '../tabsCovid/TabsCovid';
 import useCovidService  from '../../service/CovidService';
 import ErrorBoundary from '../errorBoundary/ErrorBoundary';
+import ScrollToTop from '../scrollToTop/ScroollToTop';
 
 function App() {
     const {setDateTo, 
@@ -20,7 +21,6 @@ function App() {
             getDataByDays,
             error} = useCovidService();
     const [loadingInApp, setLoadingInApp] = useState(true)
-
     const spinner = loadingInApp ? <Modal
                         show={true}
                         backdrop='true'
@@ -40,7 +40,7 @@ function App() {
             <Col className="bg-dark py-2">
                 <h1 className='text-light text-center display-1'>Covid statistics</h1>
             </Col>           
-            <Container> 
+            <Container>                    
                     {spinner}
                     <ErrorBoundary>
                         <DatepickerBlock setDateTo={setDateTo} setDateFrom={setDateFrom} dateTo={dateTo} dateFrom={dateFrom} setLoadingInApp={setLoadingInApp} /> 
@@ -58,7 +58,8 @@ function App() {
                             setLoadingInApp={setLoadingInApp}
                             />  
                     </ErrorBoundary>                                  
-            </Container>    
+            </Container> 
+            <ScrollToTop/>   
         </Container>
     );
 }
