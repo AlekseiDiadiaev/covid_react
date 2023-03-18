@@ -15,15 +15,17 @@
           "Cumulative_number_for_14_days_of_COVID-19_cases_per_100000" : "9.01377925"
        }, */
 import useHttp from '../hooks/http.hook';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const useCovidService = () => {
     const {loading, request, error, clearError} = useHttp();
     const [dateTo, setDateTo] = useState();
     const [dateFrom, setDateFrom] = useState();
-    const [baseData, setBaseData] = useState(false)
-    const [data, setData] = useState()
-    const [baseInitialData, setBaseInitialData] = useState(false)
+    const [baseData, setBaseData] = useState(false);
+    const [data, setData] = useState();
+    const [baseInitialData, setBaseInitialData] = useState(false);
+    const [countriesList, setCountriesList]  = useState(false);
+   
     const _api = 'https://opendata.ecdc.europa.eu/covid19/casedistribution/json/';
     
     const getInitialData = async () => {
@@ -102,6 +104,7 @@ const useCovidService = () => {
         })
         const arrUniqueCountries = Array.from(new Set(arrAllCounrties))      
         
+        setCountriesList(arrUniqueCountries);
         const dataByCountries = arrUniqueCountries.map(item =>{ 
                 return {country: item,
                         popData2019: 0,
@@ -126,8 +129,6 @@ const useCovidService = () => {
                     dataByCountries[indexFindedElem].popData2019 = item.popData2019;        
                 }   
         })  
-
-        
 
         filteredDataPerDate.forEach(item => {
             const indexFindedElem = dataByCountries.findIndex(elem => elem.country === item.countriesAndTerritories)
@@ -178,7 +179,6 @@ const useCovidService = () => {
             item.maxDeathsPerDay =  getMaxNumPerDay('deaths');
         })
         
-
         setBaseData(dataByCountries);
         setData(dataByCountries);
          
@@ -234,8 +234,7 @@ const useCovidService = () => {
     const getDataAfterSearch = (str) => {
         const res = baseData.filter(item => {
             return item.country.toLowerCase().includes(str.toLowerCase());
-        });
-        
+        });        
         setData(res);
         return res;
         
@@ -259,9 +258,9 @@ const useCovidService = () => {
         if(!dateFrom || !dateTo || !country){
             return false;
         }
-
+    
         const filteredDataPerDate = await getFilteredDataPerDate(dateFrom, dateTo)
-        const arrAllDays = filteredDataPerDate.map((item , i) => {
+        const arrAllDays = filteredDataPerDate.map(item  => {
             return item.dateRep
         })
 
@@ -279,6 +278,7 @@ const useCovidService = () => {
                 const resDeaths = resArr.reduce((acc, curr) => acc + curr.deaths, 0)
                 return {cases: resCases, date: item.date, deaths: resDeaths}              
             })
+            
             return resArr    
         } else {
             let daysOfCountry = filteredDataPerDate.filter(item => item.countriesAndTerritories === country); 
@@ -288,9 +288,23 @@ const useCovidService = () => {
                     const resDeaths = resArr ? resArr.deaths : 0;
                     return {cases: resCases, date: item.date, deaths: resDeaths}
                 })
+               
             return resArr;
         }
     }
+
+    const tableTitles = [{text: 'Страна', id: 'country'}, 
+                            {text: 'Заболеваний за выбранный период', id: 'cases'}, 
+                            {text: 'Смертей за выбранный период', id: 'deaths'},
+                            {text: 'Заболеваний за весь период', id: 'allCases'},
+                            {text: 'Смертей за весь период', id: 'allDeaths'},
+                            {text: 'Заболеваний на 1000 жителей', id: 'casesPer1000'},
+                            {text: 'Смертей на 1000 жителей', id: 'deathsPer1000'},
+                            {text: 'Средннее количество заболеаний в день за выбранный период', id: 'averageCasesPerDay'},
+                            {text: 'Средннее количество смертей в день за выбранный период', id: 'averageDeathsPerDay'},
+                            {text: 'Максимум заболеваний в день за выбранный период', id: 'maxCasesPerDay'},
+                            {text: 'Максимум смертей в день за выбранный период', id: 'maxDeathsPerDay'},
+                        ]
     return {loading, 
             error, 
             clearError, 
@@ -304,7 +318,9 @@ const useCovidService = () => {
             setDateFrom, 
             dateTo, 
             dateFrom,
-            baseData
+            baseData,
+            tableTitles,
+            countriesList
             };
 }
 

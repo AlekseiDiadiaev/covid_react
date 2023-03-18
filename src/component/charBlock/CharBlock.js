@@ -15,16 +15,16 @@ import {
   } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 import ruLocale from 'date-fns/locale/ru';
+
 import {Form, Col, Spinner} from 'react-bootstrap';
 
 
-
-function CharBlock({getDataByCountries, dateTo, dateFrom, getDataByDays}) {
-    const [dataByCountries, setByCountries] = useState(null);
+function CharBlock({dateTo, dateFrom, getDataByDays, countriesList, wasCharOpen}) {
     const [dataByDays, setDataPerDay] = useState(null);
     const [filterId, setFilterId] = useState('all');
     const [isSmallScrean, setIsSmallScrean ] = useState(false)
-
+    const [dataFromWhenOPen, setDataFromWhenOPen] = useState(null);
+    const [dataToWhenOPen, setDataToWhenOPen] = useState(null);
     useEffect(() => {
         const handleResize = () => {
             setIsSmallScrean(window.innerWidth < 992);
@@ -36,34 +36,37 @@ function CharBlock({getDataByCountries, dateTo, dateFrom, getDataByDays}) {
         
     }, []);
 
-
     useEffect(() => {
-        getDataByDays(filterId)
+        setTimeout(() => {
+            getDataByDays(filterId)
             .then(res => {
                 setDataPerDay(res)
 
             })  
+        },150)
     }, [filterId])
 
     useEffect(() => {
-        getDataByDays()  
+        if(!wasCharOpen) return;
+        if(dateFrom === dataFromWhenOPen && dateTo === dataToWhenOPen) return;
+        setDataToWhenOPen(dateTo);
+        setDataFromWhenOPen(dateFrom);
+        
         if(dateTo && dateFrom){
-            getDataByCountries()
-                .then(res => {
-                    setByCountries(res)            
-                }) 
-            getDataByDays(filterId)
+            setTimeout(() => {
+                getDataByDays(filterId)
                 .then(res => {
                     setDataPerDay(res)
-         
-                })      
+    
+                })  
+            },150)     
         }   
-    },[dateTo, dateFrom])
+    },[dateTo, dateFrom, wasCharOpen])
    
     let optionOfSelectOfCountries;
-    if(dataByCountries) {
-        optionOfSelectOfCountries =  dataByCountries.map((item,i) => {
-            return <option key={i} value={item.country}>{item.country}</option>;
+    if(countriesList) {
+        optionOfSelectOfCountries =  countriesList.map((item,i) => {
+            return <option key={i} value={item}>{item}</option>;
         })
     }
 

@@ -1,7 +1,7 @@
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Container,  Col, Spinner, Modal} from 'react-bootstrap';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import DatepickerBlock from '../datepickerblock/DatepickerBlock';
 import TabsCovid from '../tabsCovid/TabsCovid';
 import useCovidService  from '../../service/CovidService';
@@ -19,7 +19,9 @@ function App() {
             getFilteredData, 
             baseData, 
             getDataByDays,
-            error} = useCovidService();
+            error,
+            tableTitles,
+            countriesList} = useCovidService();
     const [loadingInApp, setLoadingInApp] = useState(true)
     const spinner = loadingInApp ? <Modal
                         show={true}
@@ -38,7 +40,7 @@ function App() {
         
         <Container fluid className='bg-body min-vh-100 p-0'>
             <Col className="bg-dark py-2">
-                <h1 className='text-light text-center display-1'>Covid statistics</h1>
+                <h1 className='text-light text-center display-1'>Covid статистика</h1>
             </Col>           
             <Container>                    
                     {spinner}
@@ -56,6 +58,8 @@ function App() {
                             getDataByDays={getDataByDays}
                             error={error}
                             setLoadingInApp={setLoadingInApp}
+                            tableTitles={tableTitles}
+                            countriesList={countriesList}
                             />  
                     </ErrorBoundary>                                  
             </Container> 

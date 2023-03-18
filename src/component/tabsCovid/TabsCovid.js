@@ -1,15 +1,32 @@
 import {Container, Tab, Tabs} from 'react-bootstrap';
 import './tabsCovid.scss'
 import TableCovid from '../tableCovid/TableCovid';
-// import CharBlock from '../charBlock/CharBlock';
 import ErrorBoundary from '../errorBoundary/ErrorBoundary';
-import React, { Suspense } from 'react';
+import React, { Suspense, useState} from 'react';
 const CharBlock = React.lazy(() => import('../charBlock/CharBlock'));
 
-function TabsCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getDataAfterSearch, getFilteredData, baseData, getDataByDays, error, setLoadingInApp}) {
+function TabsCovid({getDataByCountries, 
+                    dateTo, 
+                    dateFrom, 
+                    getSortedData, 
+                    getDataAfterSearch, 
+                    getFilteredData, 
+                    baseData, 
+                    getDataByDays,
+                    error, 
+                    setLoadingInApp, 
+                    tableTitles, 
+                    countriesList}) {
+    const [wasCharOpen, setWasCharOpen] = useState(false)
     return (
        <>
-            <Tabs defaultActiveKey="table" id="tabs" className="rounded fs-3" fill>
+            <Tabs 
+                defaultActiveKey="table" 
+                id="tabs" 
+                className="rounded fs-3" 
+                fill 
+                onSelect={(e) => e === 'char' ? setWasCharOpen(true) : setWasCharOpen(false)}
+            >
                 <Tab eventKey="table" title="Таблица" >
                     <Container  className='bg-light p-4 border border-top-0 mb-2'>
                         <ErrorBoundary>
@@ -22,17 +39,20 @@ function TabsCovid({getDataByCountries, dateTo, dateFrom, getSortedData, getData
                                 baseData={baseData}
                                 error={error}
                                 setLoadingInApp={setLoadingInApp}
+                                tableTitles={tableTitles}
                                 />
                         </ErrorBoundary>          
                     </Container>
                 </Tab>
+
                 <Tab eventKey="char" title="График" >
                     <Container className='bg-light p-4 border border-top-0  mb-2'>
                         <Suspense>
-                            <CharBlock  getDataByCountries={getDataByCountries} 
-                                        dateTo={dateTo} 
+                            <CharBlock  dateTo={dateTo} 
                                         dateFrom={dateFrom}
-                                        getDataByDays={getDataByDays} />
+                                        getDataByDays={getDataByDays} 
+                                        countriesList={countriesList}
+                                        wasCharOpen={wasCharOpen}/>
                         </Suspense>
                     </Container>
                 </Tab>

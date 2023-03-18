@@ -10,7 +10,6 @@ import { ru } from 'date-fns/locale';
 
 import  useCovidService  from '../../service/CovidService';
 
-
 function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom, setLoadingInApp}) {
     const {getMinMaxDate, loading, error} = useCovidService();
     const [baseMinDate, setBaseMinDate] = useState(null);
@@ -53,7 +52,7 @@ function DatepickerBlock({setDateTo, setDateFrom, dateTo ,dateFrom, setLoadingIn
         setActiveKeyFrom('0');
         setActiveKeyTo('0');  
     };
-    // console.log(baseMinDate, dateFrom, baseMaxDate, dateTo )
+
     const isDisabledResetButton = baseMinDate === dateFrom && baseMaxDate === dateTo ? true : false;
 
     return (

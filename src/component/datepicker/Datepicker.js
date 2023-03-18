@@ -58,14 +58,6 @@ export default function DatePiсker({setDateTo, setDateFrom, idPicker, loading, 
         footer = <p>Выбрана дата {format(selected, 'PP', {locale: ru})}.</p>;
     }
     
-    // const getLimitDateFrom = () => {
-    //     if (idPicker === "min") {
-    //         return baseMinDate
-    //     } else {
-    //         limitChangedDate;
-    //     }
-    // }
-
     const limitDateFrom = idPicker === "min" ? baseMinDate: limitChangedDate;
     const limitDateTo = idPicker === "max" ? baseMaxDate: limitChangedDate;
 
