@@ -28,6 +28,7 @@ function TableCovid({getDataByCountries,
     const [filterId, setFilterId] = useState('cases');
     const [searchValue, setSearchValue] = useState('');
     const [togglerGetData, setTogglerGetData] = useState(false);
+    const [activeCol, setActiveCol] = useState('country-cell');
     
 
     useEffect(() => {
@@ -79,15 +80,7 @@ function TableCovid({getDataByCountries,
 
     const onSortData = (e) => {
         const colId = e.target.getAttribute('data-col');
-        const col = document.querySelectorAll(`.${colId}`);
-        const cells = document.querySelectorAll(`.cell`);
-        cells.forEach(item => {
-            item.classList.remove('active-cell')
-        })
-        col.forEach(item => {
-            item.classList.add('active-cell')
-        })
-
+        setActiveCol(colId);
         const res = getSortedData(e.target.id);
         setData(res);
         setActiveBtn(e.target.id);
@@ -116,6 +109,7 @@ function TableCovid({getDataByCountries,
     }
 
     const table = <TablePucker
+                    activeCol={activeCol}
                     data={data}
                     checkIndexTable={checkIndexTable}
                     startRow={startRow}
